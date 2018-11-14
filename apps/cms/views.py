@@ -1,13 +1,14 @@
 from flask import (Blueprint, views, render_template, request,
                    session, redirect, url_for, g, jsonify)
 
-from exts import db
+from exts import db, mail
 from utils import resful
 from .forms import LoginForm, ResetPwdForm
 from .models import CMSUser
 from .decorators import login_requied
-import config
+from flask_mail import Message
 
+import config
 
 cms_bp = Blueprint("cms", __name__, url_prefix='/cms')
 
@@ -77,11 +78,30 @@ class ResetPwdView(views.MethodView):
                 return resful.success(message="密码修改成功")
             else:
                 return resful.params_error("旧密码错误")
-           #给android，ios写后台用restful更合适
+        # 给android，ios写后台用restful更合适
         else:
             return resful.params_error(form.get_error())
 
 
+class ResetEmailView(views.MethodView):
+    def get(self):
+        return render_template('cms/cms_modifyemail.html')
+
+    def post(self):
+        pass
+
+
+@cms_bp.route("/email/")
+def send_eamil():
+    message = Message("测试邮件的发送", recipients=['1223765504@qq.com'])
+    message.body='数据测试'
+    message.html='<h1>哈哈哈哈</h1>'
+    mail.send(message)
+
+    return "发送邮件"
+
+
+cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailView.as_view('resetemail'))
 cms_bp.add_url_rule('/resetpwd/', endpoint='resetpwd', view_func=ResetPwdView.as_view('resetpwd'))
 
 cms_bp.add_url_rule('/login/', endpoint='login', view_func=LoginView.as_view('login'))
