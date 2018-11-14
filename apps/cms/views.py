@@ -1,8 +1,13 @@
-from flask import Blueprint, views, render_template, request, session, redirect, url_for, g
-from .forms import LoginForm
+from flask import (Blueprint, views, render_template, request,
+                   session, redirect, url_for, g, jsonify)
+
+from exts import db
+from utils import resful
+from .forms import LoginForm, ResetPwdForm
 from .models import CMSUser
 from .decorators import login_requied
 import config
+
 
 cms_bp = Blueprint("cms", __name__, url_prefix='/cms')
 
@@ -50,18 +55,33 @@ class LoginView(views.MethodView):
             # popitem() 方法随机返回并删除字典中的一对键和值(),结果是元组（"email",[]）
             # [1]获取元组中的第2个值，第一个值是数组，所用用[0]
             print(form.errors.popitem())
-            message = form.errors.popitem()[1][0]
-            return self.get(message=message)
+            return self.get(message=form.get_error())
 
 
 class ResetPwdView(views.MethodView):
-    decorators=[login_requied]
-    def get(self):
-        return render_template('cms/cms_modifpwd.html')
+    decorators = [login_requied]
+
+    def get(self, message=None):
+        return render_template('cms/cms_modifpwd.html', message=message)
 
     def post(self):
-        pass
+        form = ResetPwdForm(request.form)
+        if form.validate():
+            oldpwd = form.old_pwd.data
+            newpwd = form.new_pwd.data
+            user = g.cms_user
+            if user.check_pwd(oldpwd):
+                user.password = newpwd
+                db.session.commit()
+                ###{"code":200,message:"修改成功",}
+                return resful.success(message="密码修改成功")
+            else:
+                return resful.params_error("旧密码错误")
+           #给android，ios写后台用restful更合适
+        else:
+            return resful.params_error(form.get_error())
 
 
 cms_bp.add_url_rule('/resetpwd/', endpoint='resetpwd', view_func=ResetPwdView.as_view('resetpwd'))
+
 cms_bp.add_url_rule('/login/', endpoint='login', view_func=LoginView.as_view('login'))
