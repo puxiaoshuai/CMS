@@ -1,3 +1,5 @@
+import random
+
 from flask import (Blueprint, views, render_template, request,
                    session, redirect, url_for, g, jsonify)
 
@@ -7,7 +9,7 @@ from .forms import LoginForm, ResetPwdForm
 from .models import CMSUser
 from .decorators import login_requied
 from flask_mail import Message
-
+import string
 import config
 
 cms_bp = Blueprint("cms", __name__, url_prefix='/cms')
@@ -88,17 +90,39 @@ class ResetEmailView(views.MethodView):
         return render_template('cms/cms_modifyemail.html')
 
     def post(self):
+        #获取邮箱和验证码
         pass
 
 
-@cms_bp.route("/email/")
-def send_eamil():
-    message = Message("测试邮件的发送", recipients=['1223765504@qq.com'])
-    message.body='数据测试'
-    message.html='<h1>哈哈哈哈</h1>'
-    mail.send(message)
-
-    return "发送邮件"
+#
+# @cms_bp.route("/email/")
+# def send_eamil():
+#     message = Message("测试邮件的发送", recipients=['1223765504@qq.com'])
+#     message.body='数据测试'
+#     message.html='<h1>哈哈哈哈</h1>'
+#     mail.send(message)
+#
+#     return "发送邮件"
+@cms_bp.route('/email_captcha/')
+def email_captcha():
+    # /email_captcha/?email=xx.com
+    email = request.args.get('email')
+    if not email:
+        return resful.params_error("请传递邮箱参数")
+    source = list(string.ascii_letters)  # ['a','b'..z ..Z]
+    source.extend(map(lambda x: str(x), range(0, 10)))
+    # source.extend(["0","1","2","3","4","5","6","7","8","9"])
+    # 随机采用
+    yanzhengma = "".join(random.sample(source, 6))
+    message = Message("趣论坛验证码", recipients=[email])
+    message.body = '您的验证码是 %s,请复制验证码到网址进行邮箱修改' % yanzhengma
+    message.html = '<h3>您的验证码是 %s,请复制验证码到网址进行邮箱修改</h3>' % yanzhengma
+    ##把邮箱，验证码绑定在一起，后面进行验证
+    try:
+        mail.send(message)
+    except:
+        return resful.server_error()
+    return resful.success()
 
 
 cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailView.as_view('resetemail'))
