@@ -21,5 +21,5 @@ MAIL_USE_TLS = True
 # MAIL_USE_SSL :  False
 
 MAIL_USERNAME = '1372553910@qq.com'
-MAIL_PASSWORD = 'mfcreudthylbijjj'
+MAIL_PASSWORD = 'tsnmmzpprcfyjabc'
 MAIL_DEFAULT_SENDER = '1372553910@qq.com'

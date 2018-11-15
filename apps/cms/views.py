@@ -4,8 +4,8 @@ from flask import (Blueprint, views, render_template, request,
                    session, redirect, url_for, g, jsonify)
 
 from exts import db, mail
-from utils import resful
-from .forms import LoginForm, ResetPwdForm
+from utils import resful, zlcache
+from .forms import LoginForm, ResetPwdForm, ResetEmailForm
 from .models import CMSUser
 from .decorators import login_requied
 from flask_mail import Message
@@ -86,12 +86,21 @@ class ResetPwdView(views.MethodView):
 
 
 class ResetEmailView(views.MethodView):
+    decorators = [login_requied]
+
     def get(self):
         return render_template('cms/cms_modifyemail.html')
 
     def post(self):
-        #获取邮箱和验证码
-        pass
+        # 获取邮箱和验证码
+        form = ResetEmailForm(request.form)
+        if form.validate():
+            email = form.email.data
+            g.cms_user.email == email
+            db.session.commit()
+            return resful.success("修改成功")
+        else:
+            return resful.params_error(form.get_error())
 
 
 #
@@ -117,12 +126,13 @@ def email_captcha():
     message = Message("趣论坛验证码", recipients=[email])
     message.body = '您的验证码是 %s,请复制验证码到网址进行邮箱修改' % yanzhengma
     message.html = '<h3>您的验证码是 %s,请复制验证码到网址进行邮箱修改</h3>' % yanzhengma
-    ##把邮箱，验证码绑定在一起，后面进行验证
     try:
-        mail.send(message)
+        mail.send(message=message)
     except:
-        return resful.server_error()
-    return resful.success()
+        return  resful.params_error("发送验证码异常")
+    ##把邮箱，验证码绑定在一起，60s缓存
+    zlcache.set(email, yanzhengma)
+    return resful.success("发送成功")
 
 
 cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailView.as_view('resetemail'))
