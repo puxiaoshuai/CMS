@@ -31,6 +31,7 @@ $(function () {
     } else if(url.indexOf('resetpwd') >= 0){
         var profileLi = $('.profile-li');
         profileLi.addClass('unfold').siblings().removeClass('unfold');
+
         profileLi.children('.subnav').children().eq(1).addClass('active').siblings().removeClass('active');
     } else if(url.indexOf('resetemail') >= 0){
         var profileLi = $('.profile-li');
@@ -45,20 +46,27 @@ $(function () {
     }else if(url.indexOf('permissions') >= 0){
         var permissionManageLi = $('.permission-manage');
         permissionManageLi.addClass('unfold').siblings().removeClass('unfold');
+
     }else if(url.indexOf('roles') >= 0){
         var roleManageLi = $('.role-manage');
         roleManageLi.addClass('unfold').siblings().removeClass('unfold');
+
     }else if(url.indexOf('users') >= 0){
         var userManageLi = $('.user-manage');
         userManageLi.addClass('unfold').siblings().removeClass('unfold');
-    }else if(url.indexOf('cmsuser_manage') >= 0){
+
+    }else if(url.indexOf('cms_usermanage') >= 0){
         var cmsuserManageLi = $('.cmsuser-manage');
         cmsuserManageLi.addClass('unfold').siblings().removeClass('unfold');
-    }else if(url.indexOf('cmsrole_manage') >= 0){
+
+    }else if(url.indexOf('cms_usergroup') >= 0){
         var cmsroleManageLi = $('.cmsrole-manage');
         cmsroleManageLi.addClass('unfold').siblings().removeClass('unfold');
+
     }else if(url.indexOf('comments') >= 0) {
+
         var commentsManageLi = $('.comments-manage');
         commentsManageLi.addClass('unfold').siblings().removeClass('unfold');
+
     }
 });

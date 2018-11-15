@@ -21,7 +21,8 @@ class ResetPwdForm(BaseForm):
 class ResetEmailForm(BaseForm):
     email = StringField(validators=[Email(message="请输入正确的格式的邮箱")])
     captcha = StringField(validators=[length(min=6, max=6, message="验证码长度不对")])
-    #定义这个方法，直接就能进行判断样，很方便，名字要匹配
+
+    # 定义这个方法，直接就能进行判断样，很方便，名字要匹配
     def validate_captcha(self, filed):
         yzm = filed.data
         email = self.email.data

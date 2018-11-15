@@ -6,8 +6,8 @@ from flask import (Blueprint, views, render_template, request,
 from exts import db, mail
 from utils import resful, zlcache
 from .forms import LoginForm, ResetPwdForm, ResetEmailForm
-from .models import CMSUser
-from .decorators import login_requied
+from .models import CMSUser,CMSPersmission
+from .decorators import login_requied,permission_requied
 from flask_mail import Message
 import string
 import config
@@ -28,10 +28,59 @@ def logout():
     return redirect(url_for('cms.login'))
 
 
+# 个人中心界面
 @cms_bp.route('/profile/')
 @login_requied
 def profile():
     return render_template('cms/cms_profile.html')
+
+
+# 帖子模块
+@cms_bp.route("/posts/")
+@login_requied
+@permission_requied(CMSPersmission.POSTOR)
+def posts():
+    return render_template('cms/cms_posts.html')
+
+
+# 评论模块
+@cms_bp.route("/comments/")
+@login_requied
+@permission_requied(CMSPersmission.COMMENTER)
+def commment():
+    return render_template('cms/cms_comments.html')
+
+
+# 版块管理
+@cms_bp.route("/boards/")
+@login_requied
+@permission_requied(CMSPersmission.BORDER)
+def boards():
+    return render_template('cms/cms_borders.html')
+
+
+# 前台用户管理
+@cms_bp.route("/users/")
+@login_requied
+@permission_requied(CMSPersmission.FRONTUSER)
+def users():
+    return render_template('cms/cms_userfront.html')
+
+
+# 后台用户管理
+@login_requied
+@permission_requied(CMSPersmission.CMSUSER)
+@cms_bp.route("/cms_usermanage/")
+def cms_usermanage():
+    return render_template('cms/cms_userback.html')
+
+
+# 后台用户z组管理
+@cms_bp.route("/cms_usergroup/")
+@login_requied
+@permission_requied(CMSPersmission.CMSUSER_Admin)
+def cms_usergroup():
+    return render_template('cms/cms_usergroup.html')
 
 
 class LoginView(views.MethodView):
@@ -129,7 +178,7 @@ def email_captcha():
     try:
         mail.send(message=message)
     except:
-        return  resful.params_error("发送验证码异常")
+        return resful.params_error("发送验证码异常")
     ##把邮箱，验证码绑定在一起，60s缓存
     zlcache.set(email, yanzhengma)
     return resful.success("发送成功")
