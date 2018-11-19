@@ -5,10 +5,10 @@ from apps.front import front_bp
 import config
 from exts import db,mail
 from  flask_wtf import CSRFProtect
+from utils.captcha import Captcha
 
 
-
-
+Captcha.gene_graph_captcha()
 def create_app():
     app = Flask(__name__)
     #绑定了配置文件
