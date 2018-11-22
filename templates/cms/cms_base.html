@@ -52,7 +52,7 @@
                         <li><a href="{{ url_for('cms.resetemail') }}">修改邮箱</a></li>
                     </ul>
                 </li>
-
+                  <li class="nav-group banner-manage"><a href="{{ url_for('cms.cms_banner') }}">轮播图管理</a></li>
                 {% if cms_user.has_perssion(CMSPersmission.POSTOR) %}
                     <li class="nav-group post-manage"><a href="{{ url_for('cms.posts') }}">帖子管理</a></li>
                 {% endif %}

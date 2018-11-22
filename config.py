@@ -1,7 +1,8 @@
 import os
 
 DEBUG = True
-SECRET_KEY = os.urandom(24)
+#SECRET_KEY = os.urandom(24)
+SECRET_KEY = "13421349fjskfjkklsasfj123"
 HOSTNAME = '127.0.0.1'
 PORT = '3306'
 DATABASE = 'cms'

@@ -51,6 +51,11 @@ $(function () {
         var roleManageLi = $('.role-manage');
         roleManageLi.addClass('unfold').siblings().removeClass('unfold');
 
+    }
+    else if(url.indexOf('cms_banner') >= 0){
+        var roleManageLi = $('.banner-manage');
+        roleManageLi.addClass('unfold').siblings().removeClass('unfold');
+
     }else if(url.indexOf('users') >= 0){
         var userManageLi = $('.user-manage');
         userManageLi.addClass('unfold').siblings().removeClass('unfold');

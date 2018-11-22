@@ -68,13 +68,18 @@ def users():
 
 
 # 后台用户管理
+
+@cms_bp.route("/cms_usermanage/")
 @login_requied
 @permission_requied(CMSPersmission.CMSUSER)
-@cms_bp.route("/cms_usermanage/")
 def cms_usermanage():
     return render_template('cms/cms_userback.html')
 
-
+#轮播图管理
+@cms_bp.route("/cms_banner/")
+@login_requied
+def cms_banner():
+    return  render_template('cms/cms_banner.html')
 # 后台用户z组管理
 @cms_bp.route("/cms_usergroup/")
 @login_requied

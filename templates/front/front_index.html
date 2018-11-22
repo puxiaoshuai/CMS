@@ -20,7 +20,27 @@
 
           <!-- 轮播图 -->
           <div class="carousel-inner" role="listbox">
-              {% for banner in banners %}
+               <div class="item active">
+               <a href="#">
+                        <img src="{{ url_for('static',filename="front/images/banner3.jpg") }}" alt="...">
+                    </a>
+                    </div>
+              <div class="item">
+               <a href="#">
+                        <img src="{{ url_for('static',filename="front/images/banner4.jpg") }}" alt="...">
+                    </a>
+                    </div>
+              <div class="item">
+               <a href="#">
+                        <img src="{{ url_for('static',filename="front/images/bannerone.jpg") }}" alt="...">
+                    </a>
+                    </div>
+              <div class="item">
+               <a href="#">
+                        <img src="{{ url_for('static',filename="front/images/bannertwo.jpg") }}" alt="...">
+                    </a>
+                    </div>
+              {#{% for banner in banners %}
                   {% if loop.first %}
                     <div class="item active">
                   {% else %}
@@ -30,7 +50,7 @@
                         <img src="{{ banner.image_url }}" alt="...">
                     </a>
                 </div>
-              {% endfor %}
+              {% endfor %}#}
           </div>
 
           <!-- 左右切换的控制按钮 -->
@@ -112,5 +132,6 @@
               {% endif %}
           {% endfor %}
         </div>
+    </div>
     </div>
 {% endblock %}

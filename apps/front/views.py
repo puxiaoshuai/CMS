@@ -35,13 +35,17 @@ class LoginFrontView(views.MethodView):
             pwd = loginForm.password.data
             rember = loginForm.remember.data
             user = FrontUser.query.filter_by(telephone=tel).first()
-            if user and user.check_pwd(pwd=pwd):
-                # 保存用户信息
-                session[config.FRONT_USER_ID] = user.id
-                if rember:
-                    # 设置缓存时间
-                    session.permanent = True
-                return redirect(url_for("front.index"))
+            if user:
+                if user.check_pwd(pwd=pwd):
+                    # 保存用户信息
+                    session[config.FRONT_USER_ID] = user.id
+                    if rember:
+                        # 设置缓存时间
+                        session.permanent = True
+                    return redirect(url_for("front.index"))
+                else:
+                    flash("密码不对，请重新输入密码")
+                    return self.get()
             else:
                 flash("该号码没注册，请去注册")
                 return self.get()
