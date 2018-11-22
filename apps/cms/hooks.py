@@ -1,5 +1,5 @@
 # 每次请求之前，查看是session是否有user_id,有的话表明已经等了
-from apps.front import front_bp
+
 from .views import cms_bp
 import config
 from flask import session, g, render_template
@@ -20,6 +20,6 @@ def cms_context():
     return {"CMSPersmission": CMSPersmission}
 
 
-@front_bp.errorhandler(404)
+@cms_bp.errorhandler(404)
 def page_not_found():
     return render_template('front/front_404.html'), 404

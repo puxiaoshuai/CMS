@@ -1,12 +1,12 @@
-from flask import (Blueprint, redirect, url_for,session,
+from flask import (Blueprint, redirect, url_for, session,
                    render_template, make_response, request, flash,
                    views)
 from io import BytesIO
-
+from .decorators import login_required
 import config
 from exts import db
 from utils.captcha import Captcha
-from ..front.forms import RegistFrontForm,LoginFrontForm
+from ..front.forms import RegistFrontForm, LoginFrontForm
 from .models import FrontUser
 
 front_bp = Blueprint("front", __name__)
@@ -14,7 +14,14 @@ front_bp = Blueprint("front", __name__)
 
 @front_bp.route('/')
 def index():
-    return "front"
+    return render_template('front/front_index.html')
+
+
+@front_bp.route("/logout/")
+@login_required
+def logout():
+    del session[config.FRONT_USER_ID]
+    return redirect(url_for('front.sign_in'))
 
 
 class LoginFrontView(views.MethodView):
@@ -22,18 +29,18 @@ class LoginFrontView(views.MethodView):
         return render_template('front/front_signin.html')
 
     def post(self):
-        loginForm=LoginFrontForm(request.form)
+        loginForm = LoginFrontForm(request.form)
         if loginForm.validate():
-            tel=loginForm.telephone.data
-            pwd=loginForm.password.data
-            rember=loginForm.remember.data
-            user=FrontUser.query.filter_by(telephone=tel).first()
+            tel = loginForm.telephone.data
+            pwd = loginForm.password.data
+            rember = loginForm.remember.data
+            user = FrontUser.query.filter_by(telephone=tel).first()
             if user and user.check_pwd(pwd=pwd):
-                #保存用户信息
-                session[config.FRONT_USER_ID]=user.id
+                # 保存用户信息
+                session[config.FRONT_USER_ID] = user.id
                 if rember:
-                    #设置缓存时间
-                    session.permanent=True
+                    # 设置缓存时间
+                    session.permanent = True
                 return redirect(url_for("front.index"))
             else:
                 flash("该号码没注册，请去注册")
@@ -41,7 +48,6 @@ class LoginFrontView(views.MethodView):
         else:
             flash(loginForm.get_error())
             return self.get()
-
 
 
 @front_bp.route("/captcha/")

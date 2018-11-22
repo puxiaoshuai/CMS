@@ -11,6 +11,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+{% set user=g.front_user  %}
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -20,7 +21,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">知了课堂Python论坛</a>
+          <a class="navbar-brand" href="/">趣论坛</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -39,18 +40,18 @@
                   <span id="login-tag" data-is-login="1" style="display:none;"></span>
                   <li class="dropdown">
                       <a href="#" class="dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{ g.front_user.username }}
+                        {{ user.username }}
                         <span class="caret"></span>
                       </a>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                         <li><a href="#">个人中心</a></li>
                         <li><a href="#">设置</a></li>
-                        <li><a href="#">注销</a></li>
+                        <li><a href="{{ url_for('front.sign_in') }}">注销</a></li>
                       </ul>
                   </li>
               {% else %}
-                  <li><a href="{{ url_for('front.signin') }}">登录</a></li>
-                  <li><a href="{{ url_for("front.signup") }}">注册</a></li>
+                  <li><a href="{{ url_for('front.sign_in') }}">登录</a></li>
+                  <li><a href="{{ url_for('front.sign_up') }}">注册</a></li>
               {% endif %}
           </ul>
         </div><!-- /.navbar-collapse -->
