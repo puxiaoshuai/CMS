@@ -89,4 +89,15 @@ class CMSUser(db.Model):
     def is_developer(self):
         return self.has_perssion(CMSPersmission.All_Persmission)
 
+
 # 密码对外的字段是password ,对内是下划线_password
+
+# 轮播图
+class Banner(db.Model):
+    __tablename__ = 'cms_banner'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    image_url = db.Column(db.String(255), nullable=False)
+    link_url = db.Column(db.String(255), nullable=False)
+    weight_url = db.Column(db.Integer, default=0)
+    create_time=db.Column(db.DateTime,default=datetime.now)

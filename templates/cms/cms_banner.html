@@ -1,10 +1,91 @@
 {% extends 'cms/cms_base.html' %}
-{% block title  %}
+{% from 'common/_macros.html' import static %}
+{% block title %}
     轮播图管理
 {% endblock %}
 {% block page_title %}
     轮播图管理
 {% endblock %}
+{%  block js %}
+    <script src="{{ static('cms/js/banners.js') }}"></script>
+{% endblock %}
 {% block page_content %}
-    <p>轮播图管理</p>
-{% endblock  %}
+    <button data-toggle="modal" data-target="#myModal" id="cms_btn_add" type="button" class="btn btn-danger">添加轮播图
+    </button>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>名称</th>
+            <th>图片地址</th>
+            <th>链接地址</th>
+            <th>权重</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for banner in banners %}
+            <tr data-name="{{ banner.name }}" data-image="{{ banner.image_url }}" data-link="{{ banner.link_url }}"
+                data-weight="{{ banner.weight_url }}" data-id="{{ banner.id }}">
+                <td>{{ banner.name }}</td>
+                <td><a href="{{ banner.image_url }}" target="_blank">{{ banner.image_url }}</a></td>
+                <td><a href="{{ banner.link_url }}" target="_blank">{{ banner.link_url }}</a></td>
+                {#target.开新窗口查看#}
+                <td>{{ banner.weight_url }}</td>
+                <td>{{ banner.create_time }}</td>
+                <td>
+                    <button id="cms_btn_del" type="button" class="btn btn-xs btn-danger del_banner_btn">删除</button>
+                    <button id="cms_btn_edit" type="button" class="btn btn-xs btn-info edit_banner_btn">编辑</button>
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">轮播图</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">名称</label>
+                            <div class="col-sm-10">
+                                <input type="email" name="name" class="form-control" placeholder="取个标题吧">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">图片</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="image_url" class="form-control"  placeholder="网络地址或者选择本地">
+                            </div>
+                            <button type="file" class="col-sm-2 btn btn-info">添加图片</button>
+                        </div>
+                         <div class="form-group">
+                            <label for="inputPassword3" class="col-sm-2 control-label">跳转地址</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="link_url" placeholder="想跳转到哪里">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label  class="col-sm-2 control-label">权重</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" name="weight_url" placeholder="权重越大，越在前面哦">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" id="save_image_btn" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

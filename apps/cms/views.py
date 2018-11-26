@@ -1,13 +1,14 @@
 import random
 
-from flask import (Blueprint, views, render_template, request,
+from flask import (Blueprint, views, render_template, request, flash,
                    session, redirect, url_for, g, jsonify)
 
 from exts import db, mail
 from utils import resful, zlcache
-from .forms import LoginForm, ResetPwdForm, ResetEmailForm
-from .models import CMSUser,CMSPersmission
-from .decorators import login_requied,permission_requied
+from .forms import (LoginForm, ResetPwdForm, ResetEmailForm, EditbannerForm,
+                    AddbannerForm)
+from .models import CMSUser, CMSPersmission, Banner
+from .decorators import login_requied, permission_requied
 from flask_mail import Message
 import string
 import config
@@ -75,11 +76,7 @@ def users():
 def cms_usermanage():
     return render_template('cms/cms_userback.html')
 
-#轮播图管理
-@cms_bp.route("/cms_banner/")
-@login_requied
-def cms_banner():
-    return  render_template('cms/cms_banner.html')
+
 # 后台用户z组管理
 @cms_bp.route("/cms_usergroup/")
 @login_requied
@@ -113,6 +110,69 @@ class LoginView(views.MethodView):
             # [1]获取元组中的第2个值，第一个值是数组，所用用[0]
             print(form.errors.popitem())
             return self.get(message=form.get_error())
+
+
+# 轮播图管理
+@cms_bp.route("/cms_banner/")
+@login_requied
+def cms_banner():
+    banners = Banner.query.all()
+    return render_template('cms/cms_banner.html', banners=banners)
+
+
+@cms_bp.route("/abanner/", methods=["POST"])
+@login_requied
+def banners():
+    addBanner = AddbannerForm(request.form)
+    if addBanner.validate():
+        name = addBanner.name.data
+        imge_url = addBanner.image_url.data
+        link_url = addBanner.link_url.data
+        weight_url = addBanner.weight_url.data
+        banner = Banner(name=name, image_url=imge_url, link_url=link_url, weight_url=weight_url)
+        db.session.add(banner)
+        db.session.commit()
+        return resful.success()
+    else:
+        return resful.params_error()
+
+
+@cms_bp.route("/edit_banners/", methods=["POST"])
+@login_requied
+def edit_banners():
+    form = EditbannerForm(request.form)
+    if form.validate():
+        banner_id = form.banner_id.data
+        name = form.name.data
+        image_url = form.image_url.data
+        link_url = form.link_url.data
+        weight_url = form.weight_url.data
+        banner = Banner.query.get(banner_id)
+        if banner:
+            banner.name = name
+            banner.image_url = image_url
+            banner.link_url = link_url
+            banner.weight_url = weight_url
+            db.session.commit()
+            return resful.success()
+        else:
+            return resful.params_error("没有这个轮播图")
+    else:
+        return resful.params_error(message=form.get_error())
+
+
+@cms_bp.route("/del_banner/", methods=['POST'])
+@login_requied
+def del_banner():
+    banner_id = request.form.get("banner_id")
+    if not banner_id:
+        return resful.params_error("请传入bnner_id")
+    banner = Banner.query.get(banner_id)
+    if not banner:
+        return resful.params_error("没有这个轮播图")
+    db.session.delete(banner)
+    db.session.commit()
+    return resful.success()
 
 
 class ResetPwdView(views.MethodView):
@@ -190,6 +250,7 @@ def email_captcha():
 
 
 cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailView.as_view('resetemail'))
+
 cms_bp.add_url_rule('/resetpwd/', endpoint='resetpwd', view_func=ResetPwdView.as_view('resetpwd'))
 
 cms_bp.add_url_rule('/login/', endpoint='login', view_func=LoginView.as_view('login'))

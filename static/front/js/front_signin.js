@@ -30,7 +30,7 @@ $(function(){
                         window.location = '/';
                     }
                 }else{
-                    zlalert.alertInfo(data['message']);
+                    xtalert.alertInfo(data['message']);
                 }
             }
         });

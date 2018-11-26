@@ -14,8 +14,10 @@ manage.add_command('db', MigrateCommand)
 FontUser = font_models.FrontUser
 CMSUser = cms_models.CMSUser
 CMsRole = cms_models.CMSRole
-CMSPerssion = cms_models.CMSPersmission
 
+CMSPerssion = cms_models.CMSPersmission
+#python manage.py db migrate  迁移
+#python manage.py db upgrade 映射到数据库
 
 # 参数名字要对应
 @manage.option('-u', '--username', dest='username')
