@@ -7,6 +7,10 @@
     轮播图管理
 {% endblock %}
 {%  block js %}
+    <script src="https://cdn.staticfile.org/Plupload/2.1.1/moxie.js"></script>
+    <script src="https://cdn.staticfile.org/Plupload/2.1.1/plupload.dev.js"></script>
+    <script src="https://cdn.staticfile.org/qiniu-js-sdk/1.0.14-beta/qiniu.js"></script>
+    <script src="{{ url_for('static',filename='common/zlqiniu.js') }}"></script>
     <script src="{{ static('cms/js/banners.js') }}"></script>
 {% endblock %}
 {% block page_content %}
@@ -65,7 +69,7 @@
                             <div class="col-sm-7">
                                 <input type="text" name="image_url" class="form-control"  placeholder="网络地址或者选择本地">
                             </div>
-                            <button type="file" class="col-sm-2 btn btn-info">添加图片</button>
+                            <button type="file" class="col-sm-2 btn btn-info" id="upload-btn">添加图片</button>
                         </div>
                          <div class="form-group">
                             <label for="inputPassword3" class="col-sm-2 control-label">跳转地址</label>

@@ -8,13 +8,15 @@ from exts import db
 from utils.captcha import Captcha
 from ..front.forms import RegistFrontForm, LoginFrontForm
 from .models import FrontUser
+from  ..cms import Banner
 
 front_bp = Blueprint("front", __name__)
 
 
 @front_bp.route('/')
 def index():
-    return render_template('front/front_index.html')
+    banners=Banner.query.order_by(Banner.weight_url.desc()).all()
+    return render_template('front/front_index.html',banners=banners)
 
 
 @front_bp.route("/logout/")
@@ -97,3 +99,4 @@ class RegistView(views.MethodView):
 
 front_bp.add_url_rule('/sign_up/', endpoint="sign_up", view_func=RegistView.as_view('sign_up'))
 front_bp.add_url_rule('/sign_in/', endpoint='sign_in', view_func=LoginFrontView.as_view('sign_in'))
+

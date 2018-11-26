@@ -2,7 +2,7 @@ import random
 
 from flask import (Blueprint, views, render_template, request, flash,
                    session, redirect, url_for, g, jsonify)
-
+import qiniu
 from exts import db, mail
 from utils import resful, zlcache
 from .forms import (LoginForm, ResetPwdForm, ResetEmailForm, EditbannerForm,
@@ -116,7 +116,7 @@ class LoginView(views.MethodView):
 @cms_bp.route("/cms_banner/")
 @login_requied
 def cms_banner():
-    banners = Banner.query.all()
+    banners = Banner.query.order_by(Banner.weight_url.desc()).all()
     return render_template('cms/cms_banner.html', banners=banners)
 
 
@@ -254,3 +254,4 @@ cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailV
 cms_bp.add_url_rule('/resetpwd/', endpoint='resetpwd', view_func=ResetPwdView.as_view('resetpwd'))
 
 cms_bp.add_url_rule('/login/', endpoint='login', view_func=LoginView.as_view('login'))
+
