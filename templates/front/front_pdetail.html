@@ -33,7 +33,7 @@
                 {% for comment in post.comments %}
                     <li>
                         <div class="avatar-group">
-                            <img src="{{ comment.author.avatar or static('common/images/logo.png') }}" alt="">
+                            <img src="{{ comment.author.avatar or static('front/images/icon.jpg') }}" alt="">
                         </div>
                         <div class="comment-content">
                             <p class="author-info">
@@ -50,10 +50,11 @@
         </div>
         <div class="add-comment-group">
             <h3>发表评论</h3>
-            <script id="editor" type="text/plain" style="height:100px;"></script>
             <div class="comment-btn-group">
                 <button class="btn btn-primary" id="comment-btn">发表评论</button>
             </div>
+            <script id="editor" type="text/plain" style="height:100px;"/>
+
         </div>
     </div>
     <div class="sm-container"></div>

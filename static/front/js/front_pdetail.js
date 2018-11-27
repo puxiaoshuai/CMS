@@ -30,11 +30,11 @@ $(function () {
         event.preventDefault();
         var loginTag = $("#login-tag").attr("data-is-login");
         if(!loginTag){
-            window.location = '/signin/';
+            window.location = '/sign_in/';
         }else{
             var content = window.ue.getContent();
             var post_id = $("#post-content").attr("data-id");
-            zlajax.post({
+            ajaxhelper.post({
                 'url': '/acomment/',
                 'data':{
                     'content': content,
@@ -44,7 +44,7 @@ $(function () {
                     if(data['code'] == 200){
                         window.location.reload();
                     }else{
-                        zlalert.alertInfo(data['message']);
+                        xtalert.alertInfo(data['message']);
                     }
                 }
             });

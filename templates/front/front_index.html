@@ -70,11 +70,11 @@
                     {% for post in posts %}
                         <li>
                             <div class="author-avatar-group">
-                                <img src="#" alt="">
+                                <img src="{{ url_for('static',filename='front/images/icon.jpg') }}" alt="">
                             </div>
                             <div class="post-info-group">
                                 <p class="post-title">
-                                    <a href="#">{{ post.title }}</a>
+                                    <a href="{{ url_for('front.p_details',post_id=post.id) }}">{{ post.title }}</a>
                                     {% if post.highlight %}
                                         <span class="label label-danger">精华帖</span>
                                     {% endif %}
@@ -90,7 +90,7 @@
                     {% endfor %}
                 </ul>
                 <div style="text-align:center;">
-                    {#{{ pagination.links }}#}
+                    {{ pagination.links }}
                 </div>
             </div>
         </div>
@@ -105,10 +105,10 @@
                     <a href="/" class="list-group-item active">所有板块</a>
                 {% endif %}
                 {% for board in boards %}
-                    {% if board.id == current_board %}
-                        <a href="#" class="list-group-item active">{{ board.name }}</a>
+                    {% if board.id == cur_board %}
+                        <a href="{{ url_for("front.index",bd=board.id) }}" class="list-group-item active">{{ board.name }}</a>
                     {% else %}
-                        <a href="#" class="list-group-item">{{ board.name }}</a>
+                        <a href="{{ url_for("front.index",bd=board.id) }}" class="list-group-item">{{ board.name }}</a>
                     {% endif %}
                 {% endfor %}
             </div>

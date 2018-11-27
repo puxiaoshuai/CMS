@@ -1,9 +1,10 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
+from apps.common.models import BoardModel, PostModel
 from exts import db
 from apps.cms import models as cms_models
-from apps.front import models as font_models
+from apps.front import models as font_models, FrontUser
 from  apps.common import  models as common_models
 
 from bbs import create_app
@@ -91,7 +92,19 @@ def create_fontuser(telephone, username, password):
 
 
 # python manage.py create_fontuser -t 18381021332 -u 周冬冬 -p 123456
-
+@manage.command
+def create_test_post():
+    for x in range(1,100):
+        title = '标题%s'%x
+        content = '内容：%s' % x
+        board = BoardModel.query.first()
+        author = FrontUser.query.first()
+        post = PostModel(title=title,content=content)
+        post.board = board
+        post.author = author
+        db.session.add(post)
+        db.session.commit()
+    print('恭喜！测试帖子添加成功！')
 
 if __name__ == '__main__':
     manage.run()

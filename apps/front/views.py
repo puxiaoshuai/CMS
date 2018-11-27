@@ -1,28 +1,54 @@
 from flask import (Blueprint, redirect, url_for, session,
                    render_template, make_response, request, flash,
-                   views, g)
+                   views, g, abort)
 from io import BytesIO
 from .decorators import login_required
 import config
 from exts import db
 from utils.captcha import Captcha
-from ..front.forms import RegistFrontForm, LoginFrontForm, AddPostForm
+from ..front.forms import RegistFrontForm, LoginFrontForm, AddPostForm, AddCommentForm
 from ..common.models import PostModel
-from .models import FrontUser
+from .models import FrontUser, CommentModel
 from ..cms import Banner
 from ..common.models import BoardModel
 from utils import resful
+from flask_paginate import Pagination, get_page_parameter
 
 front_bp = Blueprint("front", __name__)
 
 
 @front_bp.route('/')
 def index():
+    board_id = request.args.get('bd', type=int, default=None)
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    # sort=request.args.get("st",type=int,default=1)
     banners = Banner.query.order_by(Banner.weight_url.desc()).all()
     boards = BoardModel.query.all()
+
+    start = (page - 1) * config.PAGE_SIZE
+    end = start + config.PAGE_SIZE
+    posts = None
+    total = 0
+    query_obj = None
+    # if sort==1:
+    #     query_obj=PostModel.query.order_by(PostModel.create_time.desc())
+    # elif sort==2:
+    #     query_obj=db.session
+    if board_id:
+        query_obj = PostModel.query.filter_by(board_id=board_id)
+        posts = query_obj.slice(start, end)
+        total = query_obj.count()
+    else:
+        posts = PostModel.query.slice(start, end)  # 注意不能加.all()  .order_by(PostModel.create_time.desc())
+        total = PostModel.query.count()
+    pagination = Pagination(bs_version=4, page=page, total=total)
+
     content = {
         'banners': banners,
-        'boards': boards
+        'boards': boards,
+        'posts': posts,
+        'pagination': pagination,
+        'cur_board': board_id
     }
     return render_template('front/front_index.html', **content)
 
@@ -114,8 +140,8 @@ front_bp.add_url_rule('/sign_in/', endpoint='sign_in', view_func=LoginFrontView.
 @login_required
 def apost():
     if request.method == "GET":
-        boards=BoardModel.query.all()
-        return render_template('front/front_apost.html',boards=boards)
+        boards = BoardModel.query.all()
+        return render_template('front/front_apost.html', boards=boards)
     else:
         form = AddPostForm(request.form)
         if form.validate():
@@ -127,9 +153,39 @@ def apost():
                 return resful.params_error("没有这个版块")
             post = PostModel(title=title, content=content)
             post.board = board
-            post.author_id=g.front_user.id
+            post.author_id = g.front_user.id
             db.session.add(post)
             db.session.commit()
             return resful.success()
         else:
             return resful.params_error(form.get_error())
+
+
+@front_bp.route('/p/<post_id>/')
+@login_required
+def p_details(post_id):
+    post = PostModel.query.get(post_id)
+    if not post:
+        abort(404)
+    return render_template('front/front_pdetail.html', post=post)
+
+
+@front_bp.route("/acomment/", methods=["POST"])
+@login_required
+def add_comment():
+    form = AddCommentForm(request.form)
+    if form.validate():
+        conment = form.content.data
+        post_id = form.post_id.data
+        post = PostModel.query.get(post_id)
+        if post:
+            comment = CommentModel(content=conment)
+            comment.post = post
+            comment.author = g.front_user
+            db.session.add(comment)
+            db.session.commit()
+            return resful.success()
+        else:
+            return resful.params_error()
+    else:
+        return resful.params_error(form.get_error())
