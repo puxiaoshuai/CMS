@@ -6,7 +6,6 @@ $(function () {
     var ue = UE.getEditor("editor",{
         "serverUrl": '/ueditor/upload/'
     });
-
     $("#submit-btn").click(function (event) {
         event.preventDefault();
         var titleInput = $('input[name="title"]');
@@ -16,7 +15,7 @@ $(function () {
         var board_id = boardSelect.val();
         var content = ue.getContent();
 
-        zlajax.post({
+        ajaxhelper.post({
             'url': '/apost/',
             'data': {
                 'title': title,
@@ -25,7 +24,7 @@ $(function () {
             },
             'success': function (data) {
                 if(data['code'] == 200){
-                    zlalert.alertConfirm({
+                    xtalert.alertConfirm({
                         'msg': '恭喜！帖子发表成功！',
                         'cancelText': '回到首页',
                         'confirmText': '再发一篇',
@@ -38,8 +37,11 @@ $(function () {
                         }
                     });
                 }else{
-                    zlalert.alertInfo(data['message']);
+                    xtalert.alertInfo(data['message']);
                 }
+            },
+            'fail':function (data) {
+                  xtalert.alertInfo("出错啦");
             }
         });
     });

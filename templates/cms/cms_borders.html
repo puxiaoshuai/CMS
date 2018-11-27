@@ -1,10 +1,40 @@
 {% extends 'cms/cms_base.html' %}
+{% import 'common/_macros.html' as static %}
 {% block title  %}
     首页
 {% endblock %}
 {% block page_title %}
     欢迎来到趣论坛CMS
 {% endblock %}
+{% block js %}
+     <script src="{{ static('cms/js/boards.js') }}"></script>
+{% endblock %}
 {% block page_content %}
-    <p>我是版块管理</p>
+   <button data-toggle="modal" data-target="#myModal" id="add-board-btn" type="button" class="btn btn-danger">添加版块
+    </button>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>版块名称</th>
+            <th>帖子数量</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        {% for boards_model in boards_models %}
+            <tr data-name="{{ boards_model.name }}" data-id="{{ boards_model.id }}">
+              <td>
+                  {{ boards_model.name }}
+              </td>
+            <td>0</td>
+            <td>{{ boards_model.create_time }}</td>
+             <td>
+                    <button  type="button" class="btn btn-xs btn-danger del_board_btn">删除</button>
+                    <button  type="button" class="btn btn-xs btn-info edit_board_btn">编辑</button>
+                </td>
+            </tr>
+        {% endfor %}
+        <tbody>
+        </tbody>
+    </table>
 {% endblock  %}

@@ -4,6 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from exts import db
 from apps.cms import models as cms_models
 from apps.front import models as font_models
+from  apps.common import  models as common_models
 
 from bbs import create_app
 

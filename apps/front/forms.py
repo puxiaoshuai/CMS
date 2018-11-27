@@ -12,5 +12,11 @@ class RegistFrontForm(BaseForm):
 
 class LoginFrontForm(BaseForm):
     telephone = StringField(validators=[length(6, 11, message="请输入正确的手机号码")])
-    password = StringField(validators=[length(6, 12,message="密码长度6-12位")])
+    password = StringField(validators=[length(6, 12, message="密码长度6-12位")])
     remember = IntegerField()
+
+
+class AddPostForm(BaseForm):
+    title = StringField(validators=[InputRequired(message='请输入标题！')])
+    content = StringField(validators=[InputRequired(message='请输入内容！')])
+    board_id = IntegerField(validators=[InputRequired(message='请输入板块id！')])

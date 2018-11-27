@@ -42,5 +42,15 @@ class AddbannerForm(BaseForm):
     image_url = StringField(validators=[InputRequired(message="请输入轮播图图片链接")])
     link_url = StringField(validators=[InputRequired(message="请输入轮播图跳转地址")])
     weight_url = IntegerField(validators=[InputRequired(message="请输入轮播图优先级")])
+
+
 class EditbannerForm(AddbannerForm):
-    banner_id=IntegerField(validators=[InputRequired(message="请输入轮播图的ID")])
+    banner_id = IntegerField(validators=[InputRequired(message="请输入轮播图的ID")])
+
+
+class AddBoardForm(BaseForm):
+    name = StringField(validators=[InputRequired(message="请输入版块名称")])
+
+
+class UpdateBoardForm(AddBoardForm):
+    board_id = IntegerField(validators=[InputRequired(message="请输入版块ID")])

@@ -5,9 +5,10 @@ from flask import (Blueprint, views, render_template, request, flash,
 import qiniu
 from exts import db, mail
 from utils import resful, zlcache
-from .forms import (LoginForm, ResetPwdForm, ResetEmailForm, EditbannerForm,
-                    AddbannerForm)
+from .forms import (LoginForm, ResetPwdForm, ResetEmailForm, EditbannerForm, UpdateBoardForm,
+                    AddBoardForm, AddbannerForm)
 from .models import CMSUser, CMSPersmission, Banner
+from ..common.models import BoardModel
 from .decorators import login_requied, permission_requied
 from flask_mail import Message
 import string
@@ -57,7 +58,57 @@ def commment():
 @login_requied
 @permission_requied(CMSPersmission.BORDER)
 def boards():
-    return render_template('cms/cms_borders.html')
+    boards_models=BoardModel.query.all()
+
+    return render_template('cms/cms_borders.html',boards_models=boards_models)
+
+
+@cms_bp.route("/aboards/", methods=['POST'])
+@login_requied
+@permission_requied(CMSPersmission.BORDER)
+def aboard():
+    addboardForm = AddBoardForm(request.form)
+    if addboardForm.validate():
+        name = addboardForm.name.data
+        board = BoardModel(name=name)
+        db.session.add(board)
+        db.session.commit()
+        return resful.success()
+    else:
+        return resful.params_error(message=addboardForm.get_error())
+
+
+@cms_bp.route("/uboards/", methods=['POST'])
+@login_requied
+@permission_requied(CMSPersmission.BORDER)
+def uboards():
+    form = UpdateBoardForm(request.form)
+    if form.validate():
+        board_id = form.board_id.data
+        name = form.name.data
+        board = BoardModel.query.get(board_id)
+        if board:
+            board.name = name
+            db.session.commit()
+            return resful.success()
+        else:
+            return resful.params_error(message="没有这个板块")
+    return resful.params_error(form.get_error())
+
+
+@cms_bp.route("/del_boards/", methods=['POST'])
+@login_requied
+@permission_requied(CMSPersmission.BORDER)
+def del_boards():
+    board_id = request.form.get("board_id")
+    if not board_id:
+        return resful.params_error("请传入board_id")
+    board = BoardModel.query.get(board_id)
+    if not board:
+        return resful.params_error("没有这个版块")
+    db.session.delete(board)
+    db.session.commit()
+    return resful.success()
 
 
 # 前台用户管理
@@ -254,4 +305,3 @@ cms_bp.add_url_rule("/resetemail/", endpoint='resetemail', view_func=ResetEmailV
 cms_bp.add_url_rule('/resetpwd/', endpoint='resetpwd', view_func=ResetPwdView.as_view('resetpwd'))
 
 cms_bp.add_url_rule('/login/', endpoint='login', view_func=LoginView.as_view('login'))
-
