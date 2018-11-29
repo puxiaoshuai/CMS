@@ -2,12 +2,16 @@ from flask import (Blueprint, redirect, url_for, session,
                    render_template, make_response, request, flash,
                    views, g, abort)
 from io import BytesIO
+
+from sqlalchemy import func
+
 from .decorators import login_required
 import config
 from exts import db
 from utils.captcha import Captcha
 from ..front.forms import RegistFrontForm, LoginFrontForm, AddPostForm, AddCommentForm
 from ..common.models import PostModel
+from ..cms.models import HighlightPostModel
 from .models import FrontUser, CommentModel
 from ..cms import Banner
 from ..common.models import BoardModel
@@ -19,28 +23,37 @@ front_bp = Blueprint("front", __name__)
 
 @front_bp.route('/')
 def index():
+    ##前端点击链接，给后台返回，板块的id,设置的排序sort,
+    #后台根据得到的bd,st来查询数据，并且把，获取到的值也传给前端，这样子，循环形成整体
     board_id = request.args.get('bd', type=int, default=None)
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    # sort=request.args.get("st",type=int,default=1)
+    sort = request.args.get("st", type=int, default=1)
     banners = Banner.query.order_by(Banner.weight_url.desc()).all()
     boards = BoardModel.query.all()
-
     start = (page - 1) * config.PAGE_SIZE
     end = start + config.PAGE_SIZE
     posts = None
     total = 0
     query_obj = None
-    # if sort==1:
-    #     query_obj=PostModel.query.order_by(PostModel.create_time.desc())
-    # elif sort==2:
-    #     query_obj=db.session
+    if sort == 1:
+        query_obj = PostModel.query.order_by(PostModel.create_time.desc())
+    elif sort == 2:
+        # 按照加精时间倒叙,没加精的，按照时间倒叙
+        query_obj = db.session.query(PostModel).outerjoin(HighlightPostModel).order_by(
+            HighlightPostModel.crete_time.desc(), PostModel.create_time.desc())
+    elif sort == 3:
+        query_obj = PostModel.query.order_by(PostModel.create_time.desc())
+    elif sort == 4:
+        # 查询帖子，并加入评论，用帖子id分组，进行数量的排序，
+        query_obj = db.session.query(PostModel).outerjoin(CommentModel).group_by(PostModel.id).order_by(
+            func.count(CommentModel.id).desc(), PostModel.create_time.desc())
     if board_id:
-        query_obj = PostModel.query.filter_by(board_id=board_id)
+        query_obj = query_obj.filter(PostModel.board_id == board_id)
         posts = query_obj.slice(start, end)
         total = query_obj.count()
     else:
-        posts = PostModel.query.slice(start, end)  # 注意不能加.all()  .order_by(PostModel.create_time.desc())
-        total = PostModel.query.count()
+        posts = query_obj.slice(start, end)  # 注意不能加.all()  .order_by(PostModel.create_time.desc())
+        total = query_obj.count()
     pagination = Pagination(bs_version=4, page=page, total=total)
 
     content = {
@@ -48,7 +61,8 @@ def index():
         'boards': boards,
         'posts': posts,
         'pagination': pagination,
-        'cur_board': board_id
+        'current_board': board_id,
+        'current_sort': sort
     }
     return render_template('front/front_index.html', **content)
 

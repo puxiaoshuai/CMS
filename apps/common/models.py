@@ -8,7 +8,7 @@ class BoardModel(db.Model):
     name = db.Column(db.String(20), nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.now)
 
-
+#帖子内容
 class PostModel(db.Model):
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

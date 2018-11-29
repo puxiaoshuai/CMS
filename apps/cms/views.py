@@ -7,8 +7,9 @@ from exts import db, mail
 from utils import resful, zlcache
 from .forms import (LoginForm, ResetPwdForm, ResetEmailForm, EditbannerForm, UpdateBoardForm,
                     AddBoardForm, AddbannerForm)
-from .models import CMSUser, CMSPersmission, Banner
-from ..common.models import BoardModel
+from .models import CMSUser, CMSPersmission, Banner, HighlightPostModel
+from ..common.models import BoardModel, PostModel
+
 from .decorators import login_requied, permission_requied
 from flask_mail import Message
 import string
@@ -42,7 +43,45 @@ def profile():
 @login_requied
 @permission_requied(CMSPersmission.POSTOR)
 def posts():
-    return render_template('cms/cms_posts.html')
+    posts=PostModel.query.all()
+
+    return render_template('cms/cms_posts.html',posts=posts)
+
+
+# 加精模块
+@cms_bp.route('/hpost/', methods=["POST"])
+@login_requied
+@permission_requied(CMSPersmission.POSTOR)
+def hpost():
+    # 获取不到id,返回，获取不到这篇帖子返回
+    post_id = request.form.get('post_id')
+    if not post_id:
+        return resful.params_error("请传入帖子id")
+    post = PostModel.query.get(post_id)
+    if not post:
+        return resful.params_error("没有这篇帖子")
+    hightpost = HighlightPostModel()
+    hightpost.post = post
+    db.session.add(hightpost)
+    db.session.commit()
+    return resful.success()
+
+
+# 取消加精
+@cms_bp.route('/uhpost/', methods=["POST"])
+@login_requied
+@permission_requied(CMSPersmission.POSTOR)
+def uhpost():
+    post_id = request.form.get('post_id')
+    if not post_id:
+        return resful.params_error("请传入帖子id")
+    post = PostModel.query.get(post_id)
+    if not post:
+        return resful.params_error("没有这篇帖子")
+    highlight = HighlightPostModel.query.filter_by(post_id=post_id).first()
+    db.session.delete(highlight)
+    db.session.commit()
+    return resful.success()
 
 
 # 评论模块
@@ -58,9 +97,9 @@ def commment():
 @login_requied
 @permission_requied(CMSPersmission.BORDER)
 def boards():
-    boards_models=BoardModel.query.all()
+    boards_models = BoardModel.query.all()
 
-    return render_template('cms/cms_borders.html',boards_models=boards_models)
+    return render_template('cms/cms_borders.html', boards_models=boards_models)
 
 
 @cms_bp.route("/aboards/", methods=['POST'])

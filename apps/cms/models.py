@@ -100,4 +100,13 @@ class Banner(db.Model):
     image_url = db.Column(db.String(255), nullable=False)
     link_url = db.Column(db.String(255), nullable=False)
     weight_url = db.Column(db.Integer, default=0)
-    create_time=db.Column(db.DateTime,default=datetime.now)
+    create_time = db.Column(db.DateTime, default=datetime.now)
+
+
+# 帖子加精
+class HighlightPostModel(db.Model):
+    __tablename__ = 'high_post'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+    crete_time = db.Column(db.DateTime, default=datetime.now)
+    post = db.relationship('PostModel', backref='highlight')
